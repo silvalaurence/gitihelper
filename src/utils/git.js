@@ -1,4 +1,6 @@
 import { execa } from "execa";
+import fs from "node:fs";
+import path from "node:path";
 
 function formatGitError(error) {
   if (!error) return "An unknown Git error occurred.";
@@ -66,6 +68,40 @@ export async function hasRemote(name = "origin") {
   } catch {
     return false;
   }
+}
+
+/** Returns true if a merge, rebase, or cherry-pick is currently in progress. */
+export async function hasMergeInProgress() {
+  try {
+    let gitDir = await git(["rev-parse", "--git-dir"], { raw: true });
+    gitDir = path.isAbsolute(gitDir) ? gitDir : path.join(process.cwd(), gitDir);
+
+    const markers = [
+      "MERGE_HEAD",
+      "MERGE_MSG",
+      "rebase-merge",
+      "rebase-apply",
+      "CHERRY_PICK_HEAD",
+    ];
+    for (const marker of markers) {
+      try {
+        if (fs.existsSync(path.join(gitDir, marker))) return true;
+      } catch {
+        // ignore
+      }
+    }
+  } catch {
+    // Not a repo — treat as no merge in progress.
+  }
+
+  // Also flag unmerged paths still sitting in the index.
+  try {
+    if (await git(["ls-files", "-u"])) return true;
+  } catch {
+    // ignore
+  }
+
+  return false;
 }
 
 /** Returns true if there are uncommitted changes (staged or unstaged). */

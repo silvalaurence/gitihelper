@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { git, isGitRepo, currentBranch, hasUncommittedChanges } from "../utils/git.js";
+import { git, isGitRepo, currentBranch, hasUncommittedChanges, hasMergeInProgress } from "../utils/git.js";
 
 export async function sync() {
   let isRepo;
@@ -22,6 +22,16 @@ export async function sync() {
       chalk.red("You have uncommitted changes. Commit or stash them before syncing.")
     );
     console.log(chalk.gray('Tip: run "gt save \\"wip\\"" first, or "git stash".'));
+    process.exitCode = 1;
+    return;
+  }
+
+  if (await hasMergeInProgress()) {
+    console.error(chalk.red("A merge or rebase is already in progress."));
+    console.log(
+      chalk.gray("Resolve the conflicts first, then run: git rebase --continue")
+    );
+    console.log(chalk.gray("Or abort with: git rebase --abort / git merge --abort"));
     process.exitCode = 1;
     return;
   }
