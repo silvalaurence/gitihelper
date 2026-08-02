@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# build / coverage
+dist/
+coverage/
+
+# logs
+*.log
+npm-debug.log*
+
+# environment / secrets
+.env
+.env.*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
