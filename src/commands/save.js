@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import { git, isGitRepo, currentBranch } from "../utils/git.js";
+import { loadConfig } from "../utils/config.js";
 
 export async function save(message, options) {
   let isRepo;
@@ -24,6 +25,8 @@ export async function save(message, options) {
   }
 
   const branch = await currentBranch();
+  const config = loadConfig();
+  const shouldPush = config.pushOnSave !== false && options.push !== false;
 
   console.log(chalk.cyan("Staging changes..."));
   await git(["add", "-A"]);
@@ -46,7 +49,7 @@ export async function save(message, options) {
     }
   }
 
-  if (options.push !== false) {
+  if (shouldPush) {
     if (!committed) {
       console.log(chalk.gray("Skipping push — nothing to commit."));
     } else {
@@ -66,6 +69,8 @@ export async function save(message, options) {
         }
       }
     }
+  } else if (config.pushOnSave === false && options.push !== false) {
+    console.log(chalk.gray("pushOnSave is disabled in .gtrc — skipping push."));
   }
 
   console.log(chalk.green(`Done. Saved to ${branch}.`));

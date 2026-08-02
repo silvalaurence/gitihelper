@@ -18,7 +18,7 @@ function run(args, opts = {}) {
 test('--help lists every command', () => {
   const result = run(['--help']);
   assert.equal(result.status, 0);
-  for (const command of ['init', 'save', 'sync', 'status', 'log', 'undo', 'cleanup']) {
+  for (const command of ['init', 'save', 'sync', 'status', 'log', 'undo', 'cleanup', 'branch']) {
     assert.match(result.stdout, new RegExp(command));
   }
 });
@@ -50,3 +50,11 @@ test('gt save shows a helpful message outside a git repo', () => {
   const output = `${result.stdout}${result.stderr}`;
   assert.match(output, /Git is not installed|not available|Not inside a git repository/i);
 });
+
+test('gt branch shows a helpful message outside a git repo', () => {
+  const result = run(['branch', 'login']);
+  assert.equal(result.status, 1);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /Git is not installed|not available|not recognized|Not inside a git repository/i);
+});
+

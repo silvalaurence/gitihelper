@@ -1,7 +1,11 @@
 import chalk from "chalk";
 import { git, isGitRepo, currentBranch, hasRemote } from "../utils/git.js";
+import { loadConfig } from "../utils/config.js";
 
 export async function init(message, url, options) {
+  const config = loadConfig();
+  const defaultBranchName = config.defaultBranch || "main";
+
   // 1. Initialize the repo if we're not already inside one.
   let alreadyRepo;
   try {
@@ -14,7 +18,7 @@ export async function init(message, url, options) {
 
   if (!alreadyRepo) {
     console.log(chalk.cyan("Initializing git repository..."));
-    await git(["init", "-b", "main"]);
+    await git(["init", "-b", defaultBranchName]);
   } else {
     console.log(chalk.cyan("Already inside a git repository — skipping init."));
   }
@@ -51,8 +55,9 @@ export async function init(message, url, options) {
     }
   }
 
-  // 4. Push (respect --no-push, and skip if no remote is configured).
-  if (options.push !== false) {
+  // 4. Push (respect --no-push / pushOnSave, and skip if no remote is set).
+  const shouldPush = config.pushOnSave !== false && options.push !== false;
+  if (shouldPush) {
     if (!committed) {
       console.log(chalk.gray("Skipping push — nothing to commit."));
     } else if (!(await hasRemote("origin"))) {
@@ -71,6 +76,8 @@ export async function init(message, url, options) {
         return;
       }
     }
+  } else if (config.pushOnSave === false && options.push !== false) {
+    console.log(chalk.gray("pushOnSave is disabled in .gtrc — skipping push."));
   }
 
   console.log(chalk.green(`Done. Initialized and saved to ${branch}.`));

@@ -7,6 +7,7 @@ import { init } from "../src/commands/init.js";
 import { cleanup } from "../src/commands/cleanup.js";
 import { log } from "../src/commands/log.js";
 import { undo } from "../src/commands/undo.js";
+import { branch } from "../src/commands/branch.js";
 
 const program = new Command();
 
@@ -53,6 +54,12 @@ program
   .command("undo")
   .description("Soft-reset the last commit (changes stay staged)")
   .action(undo);
+
+program
+  .command("branch <name>")
+  .description("Create and checkout a branch using a naming convention")
+  .option("--type <type>", "branch type prefix (default: feature)", "feature")
+  .action((name, options) => branch(name, options));
 
 if (process.argv.length <= 2) {
   program.help();
