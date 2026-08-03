@@ -18,7 +18,7 @@ function run(args, opts = {}) {
 test('--help lists every command', () => {
   const result = run(['--help']);
   assert.equal(result.status, 0);
-  for (const command of ['init', 'save', 'sync', 'status', 'log', 'undo', 'cleanup', 'branch']) {
+  for (const command of ['init', 'save', 'sync', 'status', 'log', 'undo', 'cleanup', 'branch', 'amend', 'squash', 'diff', 'stash', 'switch']) {
     assert.match(result.stdout, new RegExp(command));
   }
 });
@@ -53,6 +53,48 @@ test('gt save shows a helpful message outside a git repo', () => {
 
 test('gt branch shows a helpful message outside a git repo', () => {
   const result = run(['branch', 'login']);
+  assert.equal(result.status, 1);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /Git is not installed|not available|not recognized|Not inside a git repository/i);
+});
+
+test('gt amend shows a helpful message outside a git repo', () => {
+  const result = run(['amend', 'new message']);
+  assert.equal(result.status, 1);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /Git is not installed|not available|not recognized|Not inside a git repository/i);
+});
+
+test('gt squash shows a helpful message outside a git repo', () => {
+  const result = run(['squash', '3', 'combined message']);
+  assert.equal(result.status, 1);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /Git is not installed|not available|not recognized|Not inside a git repository/i);
+});
+
+test('gt squash validates the commit count', () => {
+  const result = run(['squash', '1', 'combined message']);
+  assert.equal(result.status, 1);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /count of at least 2|Git is not installed|not available|Not inside a git repository/i);
+});
+
+test('gt diff shows a helpful message outside a git repo', () => {
+  const result = run(['diff']);
+  assert.equal(result.status, 1);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /Git is not installed|not available|not recognized|Not inside a git repository/i);
+});
+
+test('gt stash shows a helpful message outside a git repo', () => {
+  const result = run(['stash']);
+  assert.equal(result.status, 1);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /Git is not installed|not available|not recognized|Not inside a git repository/i);
+});
+
+test('gt switch shows a helpful message outside a git repo', () => {
+  const result = run(['switch', 'main']);
   assert.equal(result.status, 1);
   const output = `${result.stdout}${result.stderr}`;
   assert.match(output, /Git is not installed|not available|not recognized|Not inside a git repository/i);

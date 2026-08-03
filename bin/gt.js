@@ -8,6 +8,11 @@ import { cleanup } from "../src/commands/cleanup.js";
 import { log } from "../src/commands/log.js";
 import { undo } from "../src/commands/undo.js";
 import { branch } from "../src/commands/branch.js";
+import { amend } from "../src/commands/amend.js";
+import { squash } from "../src/commands/squash.js";
+import { diff } from "../src/commands/diff.js";
+import { stash } from "../src/commands/stash.js";
+import { switchBranch } from "../src/commands/switch.js";
 
 const program = new Command();
 
@@ -60,6 +65,35 @@ program
   .description("Create and checkout a branch using a naming convention")
   .option("--type <type>", "branch type prefix (default: feature)", "feature")
   .action((name, options) => branch(name, options));
+
+program
+  .command("amend <message>")
+  .description("Rewrite your last commit's message")
+  .option("--no-verify", "skip pre-commit hooks")
+  .action((message, options) => amend(message, options));
+
+program
+  .command("squash <count> <message>")
+  .description("Combine the last N commits into one")
+  .option("--no-verify", "skip pre-commit hooks")
+  .action((count, message, options) => squash(count, message, options));
+
+program
+  .command("diff")
+  .description("Show a colorized diff of pending changes")
+  .option("--stat", "show a diffstat summary instead")
+  .option("--staged", "show changes staged in the index")
+  .action(diff);
+
+program
+  .command("stash [action]")
+  .description("Stash your work (default) or restore it with: gt stash pop")
+  .action(stash);
+
+program
+  .command("switch [name]")
+  .description("Switch to an existing branch (no name lists branches)")
+  .action(switchBranch);
 
 if (process.argv.length <= 2) {
   program.help();

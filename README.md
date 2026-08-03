@@ -8,7 +8,7 @@ Save, sync, inspect, and clean up your repos without remembering long chains of 
 
 ---
 
-**`init` · `save` · `sync` · `status` · `log` · `undo` · `cleanup` · `branch`**
+**`init` · `save` · `sync` · `status` · `log` · `undo` · `cleanup` · `branch` · `amend` · `squash` · `diff` · `stash` · `switch`**
 
 </div>
 
@@ -28,6 +28,11 @@ Instead of typing several `git` commands to get one thing done, `gt` turns each 
 | `gt undo` | Safely soft-reset your last commit (asks for confirmation first) |
 | `gt cleanup` | Find and delete local branches already merged into `main`/`master` |
 | `gt branch "name"` | Create and checkout a branch with a type prefix (default `feature/`) |
+| `gt amend "msg"` | Rewrite your last commit's message |
+| `gt squash <n> "msg"` | Combine the last N commits into one |
+| `gt diff [--stat] [--staged]` | Colorized diff of pending changes |
+| `gt stash` / `gt stash pop` | Stash your work (incl. untracked) and restore it |
+| `gt switch [name]` | Switch to an existing branch (no name lists branches) |
 
 ## 🚀 Install
 
@@ -75,6 +80,18 @@ gt undo                          # undo last commit, keep changes staged
 gt branch login                # create + checkout feature/login
 gt branch login --type fix     # create + checkout fix/login
 gt cleanup                     # delete merged local branches
+
+# Rework recent history
+gt amend "better message"      # rewrite last commit message
+gt squash 3 "one clean commit" # combine last 3 commits into one
+
+# Inspect & stash
+gt diff                        # colorized diff of unstaged changes
+gt diff --stat --staged        # diffstat of staged changes
+gt stash                       # stash work (incl. untracked)
+gt stash pop                   # restore it
+gt switch main                 # switch to an existing branch
+gt switch                      # list branches
 ```
 
 ### A note about `gt save`
@@ -111,7 +128,7 @@ gt-cli/
 ├── bin/
 │   └── gt.js              # entry point — wires up commander
 ├── src/
-│   ├── commands/          # init · save · sync · status · log · undo · cleanup · branch
+│   ├── commands/          # init · save · sync · status · log · undo · cleanup · branch · amend · squash · diff · stash · switch
 │   └── utils/
 │       ├── git.js         # shared helpers for running git commands
 │       └── config.js      # loads .gtrc settings
@@ -131,14 +148,10 @@ npm test
 ### ✅ Core (v1.0) — shipped
 `gt init` · `gt save` · `gt sync` · `gt status` · `gt log` · `gt undo` · `gt cleanup` · `gt branch`, plus `.gtrc` config and merge-conflict protection in `sync`.
 
-### 🔜 v1.1 — Daily workflow helpers
-- `gt amend "new message"` — rewrite your last commit's message
-- `gt squash <n> "message"` — combine the last N commits into one
-- `gt diff [--stat]` — colorized diff of pending changes
-- `gt stash` / `gt stash pop` — quickly stash & restore work
-- `gt switch <branch>` — move between existing branches
+### ✅ v1.1 — Daily workflow helpers — shipped
+`gt amend "new message"` (rewrite last commit message) · `gt squash <n> "message"` (combine last N commits) · `gt diff [--stat] [--staged]` (colorized diff) · `gt stash` / `gt stash pop` · `gt switch <branch>` (lists branches with no argument).
 
-### 🛡 v1.2 — Safety & reliability
+### 🔜 v1.2 — Safety & reliability
 - **Main-branch protection** — confirm before `gt save` pushes to `main`/`master`
 - `--no-verify` on `save`/`init` to skip pre-commit hooks
 - Warn when working on a detached `HEAD` before `save`/`sync`
