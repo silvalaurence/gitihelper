@@ -1,5 +1,6 @@
 import chalk from "chalk";
-import { git, isGitRepo, currentBranch } from "../utils/git.js";
+import inquirer from "inquirer";
+import { git, isGitRepo, currentBranch, isDetachedHead } from "../utils/git.js";
 import { loadConfig } from "../utils/config.js";
 
 export async function save(message, options) {
@@ -28,13 +29,22 @@ export async function save(message, options) {
   const config = loadConfig();
   const shouldPush = config.pushOnSave !== false && options.push !== false;
 
+  if (await isDetachedHead()) {
+    console.log(
+      chalk.yellow("Warning: you're on a detached HEAD — this commit won't belong to any branch.")
+    );
+    console.log(chalk.gray("Checkout a branch first if you want the commit to move it forward."));
+  }
+
   console.log(chalk.cyan("Staging changes..."));
   await git(["add", "-A"]);
 
   console.log(chalk.cyan(`Committing to ${chalk.bold(branch)}...`));
   let committed = true;
   try {
-    await git(["commit", "-m", message]);
+    const commitArgs = ["commit", "-m", message];
+    if (options.verify === false) commitArgs.push("--no-verify");
+    await git(commitArgs);
   } catch (err) {
     // git exits non-zero both when there is genuinely nothing to commit
     // AND when the commit really failed (hooks, bad message, ...). Only
@@ -53,6 +63,22 @@ export async function save(message, options) {
     if (!committed) {
       console.log(chalk.gray("Skipping push — nothing to commit."));
     } else {
+      const protectedBranch = branch === "main" || branch === "master";
+      if (protectedBranch) {
+        const { confirmed } = await inquirer.prompt([
+          {
+            type: "confirm",
+            name: "confirmed",
+            message: `You're on ${branch} — push to origin/${branch}? (No keeps the commit local)`,
+            default: false,
+          },
+        ]);
+        if (!confirmed) {
+          console.log(chalk.yellow(`Not pushing. Commit kept locally on ${branch}.`));
+          return;
+        }
+      }
+
       console.log(chalk.cyan(`Pushing to origin/${branch}...`));
       try {
         await git(["push", "origin", branch]);

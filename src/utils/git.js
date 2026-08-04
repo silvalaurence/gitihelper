@@ -60,6 +60,16 @@ export async function currentBranch() {
   }
 }
 
+/** Returns true when HEAD is detached (not on any branch). */
+export async function isDetachedHead() {
+  try {
+    return (await git(["rev-parse", "--abbrev-ref", "HEAD"])) === "HEAD";
+  } catch {
+    // Unborn branch (no commits yet) — not detached.
+    return false;
+  }
+}
+
 /** Returns true if a git remote with the given name exists. */
 export async function hasRemote(name = "origin") {
   try {

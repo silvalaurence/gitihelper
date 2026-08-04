@@ -25,12 +25,14 @@ program
   .command("init <message> [url]")
   .description("Initialize a repo, make the first commit, and push")
   .option("--no-push", "commit only, skip the push")
+  .option("--no-verify", "skip pre-commit hooks")
   .action((message, url, options) => init(message, url, options));
 
 program
   .command("save <message>")
   .description("Stage all changes, commit with a message, and push")
   .option("--no-push", "commit only, skip the push")
+  .option("--no-verify", "skip pre-commit hooks")
   .action((message, options) => save(message, options));
 
 program

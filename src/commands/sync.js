@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { git, isGitRepo, currentBranch, hasUncommittedChanges, hasMergeInProgress } from "../utils/git.js";
+import { git, isGitRepo, currentBranch, isDetachedHead, hasUncommittedChanges, hasMergeInProgress } from "../utils/git.js";
 
 export async function sync() {
   let isRepo;
@@ -13,6 +13,13 @@ export async function sync() {
 
   if (!isRepo) {
     console.error(chalk.red("Not inside a git repository."));
+    process.exitCode = 1;
+    return;
+  }
+
+  if (await isDetachedHead()) {
+    console.error(chalk.red("You're on a detached HEAD — nothing to sync."));
+    console.log(chalk.gray('Checkout a branch first: gt switch <branch>'));
     process.exitCode = 1;
     return;
   }
