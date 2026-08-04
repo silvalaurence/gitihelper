@@ -43,7 +43,9 @@ export async function init(message, url, options) {
   console.log(chalk.cyan(`Committing to ${chalk.bold(branch)}...`));
   let committed = true;
   try {
-    await git(["commit", "-m", message]);
+    const commitArgs = ["commit", "-m", message];
+    if (options.verify === false) commitArgs.push("--no-verify");
+    await git(commitArgs);
   } catch (err) {
     if (/nothing to commit|nothing added to commit/i.test(err.message)) {
       console.log(chalk.yellow("Nothing to commit — working tree clean."));

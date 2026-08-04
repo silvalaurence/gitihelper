@@ -64,6 +64,7 @@ gt init "local start" --no-push          # init + commit only (no remote)
 # Save work
 gt save "fixed login bug"        # stage all + commit + push
 gt save "wip" --no-push          # commit only, skip the push
+gt save "msg" --no-verify        # skip pre-commit hooks
 
 # Keep in sync with the remote
 gt sync
@@ -99,10 +100,13 @@ gt switch                      # list branches
 - It stages **all** changes (`git add -A`), so the message should describe the whole change set.
 - Files matched by `.gitignore` (e.g. `node_modules/`) are never staged.
 - Pass `--no-push` to commit locally without pushing.
+- Pass `--no-verify` to skip pre-commit hooks (`gt init` supports it too).
+- Pushing to `main`/`master` asks for confirmation first — say no to keep the commit local.
+- On a detached `HEAD`, `gt save` warns (the commit won't belong to any branch).
 
 ### `gt sync` safety
 
-`gt sync` now refuses to run if a merge, rebase, or cherry-pick is already in progress — it will tell you to resolve or abort first instead of blindly rebasing on top of conflicts.
+`gt sync` refuses to run if a merge, rebase, or cherry-pick is already in progress — it will tell you to resolve or abort first instead of blindly rebasing on top of conflicts. It also refuses to run on a detached `HEAD`, where rebasing would target the wrong branch.
 
 ## ⚙️ Configuration (`.gtrc`)
 
@@ -151,7 +155,10 @@ npm test
 ### ✅ v1.1 — Daily workflow helpers — shipped
 `gt amend "new message"` (rewrite last commit message) · `gt squash <n> "message"` (combine last N commits) · `gt diff [--stat] [--staged]` (colorized diff) · `gt stash` / `gt stash pop` · `gt switch <branch>` (lists branches with no argument).
 
-### 🔜 v1.2 — Safety & reliability
+### ✅ v1.2 — Safety & reliability — shipped
+Main-branch protection (`gt save` confirms before pushing to `main`/`master`) · `--no-verify` on `save`/`init` to skip pre-commit hooks · detached-HEAD warning in `save` and hard stop in `sync` · consistent exit codes + a test for every command.
+
+### 🔜 v1.3 — Config & developer experience
 - **Main-branch protection** — confirm before `gt save` pushes to `main`/`master`
 - `--no-verify` on `save`/`init` to skip pre-commit hooks
 - Warn when working on a detached `HEAD` before `save`/`sync`

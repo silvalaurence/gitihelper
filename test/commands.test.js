@@ -100,3 +100,24 @@ test('gt switch shows a helpful message outside a git repo', () => {
   assert.match(output, /Git is not installed|not available|not recognized|Not inside a git repository/i);
 });
 
+test('gt status shows a helpful message outside a git repo', () => {
+  const result = run(['status']);
+  assert.equal(result.status, 1);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /Git is not installed|not available|not recognized|Not inside a git repository/i);
+});
+
+test('gt sync shows a helpful message outside a git repo', () => {
+  const result = run(['sync']);
+  assert.equal(result.status, 1);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /Git is not installed|not available|not recognized|Not inside a git repository/i);
+});
+
+test('gt cleanup shows a helpful message outside a git repo', () => {
+  const result = run(['cleanup']);
+  assert.equal(result.status, 1);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /Git is not installed|not available|not recognized|Not inside a git repository/i);
+});
+
