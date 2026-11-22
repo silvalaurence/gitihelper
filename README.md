@@ -1,6 +1,4 @@
-<div align="center">
-
-# 🐙 gt — a friendly git helper CLI
+<img src="site/logo.svg" alt="gitihelper" width="370">
 
 **Common git workflows, collapsed into single commands.**
 
@@ -9,8 +7,6 @@ Save, sync, inspect, and clean up your repos without remembering long chains of 
 ---
 
 **`init` · `save` · `sync` · `status` · `log` · `undo` · `cleanup` · `branch` · `amend` · `squash` · `diff` · `stash` · `switch`**
-
-</div>
 
 ---
 
